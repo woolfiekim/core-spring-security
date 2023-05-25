@@ -11,13 +11,13 @@ import io.security.corespringsecurity.domain.AccountDto;
 import io.security.corespringsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Controller
+@RequiredArgsConstructor
 public class UserController {
 
-    private static UserService userService;
+    private final UserService userService;
 
-    private static PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping(value="/mypage")
     public String myPage() throws Exception {
@@ -34,7 +34,7 @@ public class UserController {
 
         ModelMapper modelMapper = new ModelMapper();
         Account account = modelMapper.map(accountDto, Account.class);
-        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
         userService.createUser(account);
 
 

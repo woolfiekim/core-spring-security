@@ -8,6 +8,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Controller
 public class LoginController {
+
+    @GetMapping("/login")
+    public String login(){
+        return "user/login/login";
+    }
+
     @GetMapping(value="/denied")
     public String accessDenied() throws Exception {
 
