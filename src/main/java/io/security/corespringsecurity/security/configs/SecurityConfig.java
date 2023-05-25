@@ -3,6 +3,7 @@ package io.security.corespringsecurity.security.configs;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -15,7 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +30,9 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final AuthenticationFailureHandler customAuthenticationFailureHandler;
 
     /*
     * 정적 자원이 필터 거치지 않게 함
@@ -70,7 +78,7 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/users", "user/login/**").permitAll()
+                .requestMatchers("/", "/users", "user/login/**", "/login*").permitAll()
                 .requestMatchers("/mypage").hasRole("USER")
                 .requestMatchers("/messages").hasRole("MANAGER")
                 .requestMatchers("/config").hasRole("ADMIN")
@@ -84,11 +92,27 @@ public class SecurityConfig {
             .formLogin(auth -> auth
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
+                .authenticationDetailsSource(authenticationDetailsSource)//인증 부가 기능(secretKey 라는 것을 설정해서 Id, pwd 말고도 또 인증을 해야 로그인이 되도록 하였다.)
                 .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler)//로그인 성공 시 로그인 직전에 했던 행동을 할 수 있게 설정
+                .failureHandler(customAuthenticationFailureHandler)//로그인 실패시 추가 작업 //왜 login_proc 로 가는거지..?
                 .permitAll()
             );
 
+        http
+            .exceptionHandling(auth -> auth
+                .accessDeniedHandler(accessDeniedHandler())
+            );
+
         return http.build();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+
+        return accessDeniedHandler;
     }
 
     /*
