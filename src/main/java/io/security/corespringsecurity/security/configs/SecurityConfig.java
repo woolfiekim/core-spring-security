@@ -20,8 +20,11 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import io.security.corespringsecurity.repository.UserRepository;
+import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.corespringsecurity.security.provider.CustomAuthenticationProvider;
+import io.security.corespringsecurity.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -29,14 +32,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private final AuthenticationDetailsSource authenticationDetailsSource;
+    // private final UserDetailsService userDetailsService;
+    private final FormAuthenticationDetailsSource authenticationDetailsSource;
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final AuthenticationFailureHandler customAuthenticationFailureHandler;
 
     /*
-    * 정적 자원이 필터 거치지 않게 함
-    */
+     * 정적 자원이 필터 거치지 않게 함
+     */
 
     // permitAll()과 비슷하다. 다른 점은 아래는 보안 필터 자체를 거치지 않는다.
     @Bean
@@ -58,9 +61,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider customAuthenticationProvider() {
-        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
+        return new CustomAuthenticationProvider(userDetailsService(null), passwordEncoder());
     }
-
 
     /*
      * filter
@@ -89,14 +91,17 @@ public class SecurityConfig {
          * 커스텀 로그인 페이지
          */
         http
-            .formLogin(auth -> auth
-                .loginPage("/login")
-                .loginProcessingUrl("/login_proc")
-                .authenticationDetailsSource(authenticationDetailsSource)//인증 부가 기능(secretKey 라는 것을 설정해서 Id, pwd 말고도 또 인증을 해야 로그인이 되도록 하였다.)
-                .defaultSuccessUrl("/")
-                .successHandler(customAuthenticationSuccessHandler)//로그인 성공 시 로그인 직전에 했던 행동을 할 수 있게 설정
-                .failureHandler(customAuthenticationFailureHandler)//로그인 실패시 추가 작업 //왜 login_proc 로 가는거지..?
-                .permitAll()
+            .formLogin(
+                auth ->
+                    auth
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login_proc")
+                        .authenticationDetailsSource(
+                            authenticationDetailsSource)//인증 부가 기능(secretKey 라는 것을 설정해서 Id, pwd 말고도 또 인증을 해야 로그인이 되도록 하였다.)
+                        .defaultSuccessUrl("/")
+                        .successHandler(customAuthenticationSuccessHandler)//로그인 성공 시 로그인 직전에 했던 행동을 할 수 있게 설정
+                        .failureHandler(customAuthenticationFailureHandler)//로그인 실패시 추가 작업 //왜 login_proc 로 가는거지..?
+
             );
 
         http
@@ -108,11 +113,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
         CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
         accessDeniedHandler.setErrorPage("/denied");
 
         return accessDeniedHandler;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return new CustomUserDetailsService(userRepository);
     }
 
     /*

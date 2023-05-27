@@ -42,10 +42,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
          * ID, PWD 가 같아도 secret 값이 없거나 같지 않으면 예외처리
          */
 
-        FormWebAuthenticationDetails formWebAuthenticationDetails = (FormWebAuthenticationDetails)authentication.getDetails();
-        String secretKey = formWebAuthenticationDetails.getSecretKey();
+        // FormWebAuthenticationDetails formWebAuthenticationDetails = (FormWebAuthenticationDetails)authentication.getDetails();
+        // String secretKey = formWebAuthenticationDetails.getSecretKey();
+        String secretKey = ((FormWebAuthenticationDetails) authentication.getDetails()).getSecretKey();
 
-        if(secretKey == null || !"secret".equals(secretKey)){
+        if(!"secret".equals(secretKey)){
             throw new InsufficientAuthenticationException("InsufficientAuthenticationException");
         }
 
