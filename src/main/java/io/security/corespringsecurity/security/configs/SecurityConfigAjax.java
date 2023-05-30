@@ -23,8 +23,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import io.security.corespringsecurity.repository.UserRepository;
+import io.security.corespringsecurity.security.common.AjaxLoginAuthenticationEntryPoint;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.filter.AjaxLoginProcessingFilter;
+import io.security.corespringsecurity.security.handler.AjaxAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.AjaxAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
@@ -74,11 +76,23 @@ public class SecurityConfigAjax {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/login").permitAll()
                 .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/api/messages").hasRole("MANAGER")
             );
 
         http.csrf(csrf -> csrf.disable());
 
+        http.
+            exceptionHandling(auth -> auth
+                .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint()) //인증예외
+                .accessDeniedHandler(ajaxAccessDeniedHandler()) //인가예외
+            );
+
         return http.build();
+    }
+
+    @Bean
+    public AccessDeniedHandler ajaxAccessDeniedHandler(){
+        return new AjaxAccessDeniedHandler();
     }
 
     @Bean
