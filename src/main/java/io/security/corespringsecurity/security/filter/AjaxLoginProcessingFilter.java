@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.thymeleaf.util.StringUtils;
@@ -32,11 +33,12 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
             throw new IllegalStateException("Authentication is not supported");
         }
 
-        AccountDto accountDto = objectMapper.readValue(request.getHeader(String.valueOf(request.getReader())), AccountDto.class);
+        AccountDto accountDto = objectMapper.readValue(request.getReader(), AccountDto.class);
         if(StringUtils.isEmpty(accountDto.getUsername()) || StringUtils.isEmpty(accountDto.getPassword())){
             throw new IllegalArgumentException("Username or Password is empty");
         }
         AjaxAuthenticationToken ajaxAuthenticationToken = new AjaxAuthenticationToken(accountDto.getUsername(), accountDto.getPassword());
+
         return getAuthenticationManager().authenticate(ajaxAuthenticationToken);
     }
 

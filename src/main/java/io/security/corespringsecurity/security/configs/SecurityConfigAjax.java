@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,21 +44,16 @@ public class SecurityConfigAjax {
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final AuthenticationFailureHandler customAuthenticationFailureHandler;
 
-    private AuthenticationConfiguration authenticationConfiguration;
-    @Autowired
-    private void setAjaxSecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
-        this.authenticationConfiguration = authenticationConfiguration;
-    }
-
     @Bean
-    public AuthenticationProvider ajaxAuthenticationProvider(){
+    public AuthenticationProvider ajaxAuthenticationProvider() {
         return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder());
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(ajaxAuthenticationProvider());
     }
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -67,7 +64,7 @@ public class SecurityConfigAjax {
     public SecurityFilterChain admin(HttpSecurity http) throws Exception {
 
         http
-            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(ajaxLoginProcessingFilter(null), UsernamePasswordAuthenticationFilter.class);
         // .addFilterBefore() //기존의 필터 앞에 위치할 때
         // .addFilter() //가장 맨 마지막에 위치할 때
         // .addFilterAfter() //지금 추가하고자 하는 필터가 기존의 필터의 뒤쪽에 위치할 때
@@ -75,9 +72,11 @@ public class SecurityConfigAjax {
 
         http
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/login").permitAll()
                 .requestMatchers("/api/**").authenticated()
             );
 
+        http.csrf(csrf -> csrf.disable());
 
         return http.build();
     }
@@ -87,22 +86,23 @@ public class SecurityConfigAjax {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-   @Bean
-   public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-       AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-       ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-       ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
-       ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
-       return ajaxLoginProcessingFilter;
-   }
+    @Bean
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(AuthenticationManager authenticationManager) throws
+        Exception {
+        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
+        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager);
+        ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+        ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
+        return ajaxLoginProcessingFilter;
+    }
 
-   @Bean
-    public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler(){
+    @Bean
+    public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
         return new AjaxAuthenticationSuccessHandler();
-   }
+    }
 
-   @Bean
-   public AuthenticationFailureHandler ajaxAuthenticationFailureHandler(){
-       return new AjaxAuthenticationFailureHandler();
-   }
+    @Bean
+    public AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
+        return new AjaxAuthenticationFailureHandler();
+    }
 }
