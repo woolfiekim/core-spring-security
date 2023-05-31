@@ -60,7 +60,8 @@ public class SecurityConfigAjax {
     public SecurityFilterChain admin(HttpSecurity http) throws Exception {
 
         http
-            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+            .securityContext(securityContext -> securityContext.requireExplicitSave(false))
+            .addFilterBefore(ajaxLoginProcessingFilter(null), UsernamePasswordAuthenticationFilter.class);
         // .addFilterBefore() //기존의 필터 앞에 위치할 때
         // .addFilter() //가장 맨 마지막에 위치할 때
         // .addFilterAfter() //지금 추가하고자 하는 필터가 기존의 필터의 뒤쪽에 위치할 때
@@ -101,9 +102,9 @@ public class SecurityConfigAjax {
     }
 
     @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(AuthenticationManager authenticationManager) throws Exception {
         AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager());
+        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager);
         ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
         ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
         return ajaxLoginProcessingFilter;
