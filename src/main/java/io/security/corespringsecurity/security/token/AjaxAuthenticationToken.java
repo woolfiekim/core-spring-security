@@ -2,13 +2,8 @@ package io.security.corespringsecurity.security.token;
 
 import java.util.Collection;
 
-import javax.security.auth.Subject;
-
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
 
 public class AjaxAuthenticationToken extends AbstractAuthenticationToken {
 
