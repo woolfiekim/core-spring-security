@@ -19,7 +19,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional
+    // @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         String username = authentication.getName();
