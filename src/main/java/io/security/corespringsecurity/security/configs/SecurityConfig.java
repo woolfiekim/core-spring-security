@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Order(1)
+@Order(0)
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
@@ -52,11 +52,11 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/users", "user/login/**", "/login*").permitAll()
+                .requestMatchers("/", "/users", "/user/login/**", "/login*").permitAll()
                 .requestMatchers("/mypage").hasRole("USER")
                 .requestMatchers("/messages").hasRole("MANAGER")
                 .requestMatchers("/config").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                // .anyRequest().authenticated()
             );
 
         http
