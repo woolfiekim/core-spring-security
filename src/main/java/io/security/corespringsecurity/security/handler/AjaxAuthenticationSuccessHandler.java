@@ -9,7 +9,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.security.corespringsecurity.domain.Account;
+import io.security.corespringsecurity.domain.entity.Account;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
