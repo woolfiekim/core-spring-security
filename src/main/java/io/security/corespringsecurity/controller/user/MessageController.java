@@ -9,14 +9,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class MessageController {
 
     @GetMapping(value="/messages")
-    public String mypage() throws Exception {
+    public String messages() throws Exception {
 
         return "user/messages";
-    }
-
-    @GetMapping("/api/messages")
-    @ResponseBody
-    public String apiMessage(){
-        return "messages ok";
     }
 }

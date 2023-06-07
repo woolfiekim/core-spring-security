@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Controller
 public class LoginController {
 
-    @RequestMapping(value={"/login", "/api/login"})
+    @RequestMapping(value="/login")
     public String login(@RequestParam(value = "error", required = false) String error,
         @RequestParam(value = "exception", required = false) String exception, Model model){
         model.addAttribute("error",error);
@@ -39,7 +39,7 @@ public class LoginController {
         return "redirect:/login";
     }
 
-    @GetMapping(value={"/denied","/api/denied"})
+    @GetMapping(value="/denied")
     public String accessDenied(@RequestParam(value = "exception", required = false) String exception, Principal principal, Model model) throws Exception {
 
         Account account = null;
@@ -50,6 +50,7 @@ public class LoginController {
         }else if(principal instanceof AjaxAuthenticationToken){
             account = (Account) ((AjaxAuthenticationToken) principal).getPrincipal();
         }
+
         model.addAttribute("username", account.getUsername());
         model.addAttribute("exception", exception);
 
