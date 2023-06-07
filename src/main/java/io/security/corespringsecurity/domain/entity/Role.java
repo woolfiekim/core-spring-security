@@ -24,11 +24,8 @@ import lombok.ToString;
 @Entity
 @Table(name = "ROLE")
 @Getter
-@Setter
 @ToString(exclude = {"users","resourcesSet"})
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Role implements Serializable {
 
@@ -50,5 +47,13 @@ public class Role implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "userRoles")
     private Set<Account> accounts = new HashSet<>();
 
+    @Builder
+    public Role(Long id, String roleName, String roleDesc, Set<Resources> resourcesSet, Set<Account> accounts) {
+        this.id = id;
+        this.roleName = roleName;
+        this.roleDesc = roleDesc;
+        this.resourcesSet = resourcesSet;
+        this.accounts = accounts;
+    }
 }
 

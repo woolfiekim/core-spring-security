@@ -16,23 +16,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Table(name = "RESOURCES")
 @Getter
-@Setter
 @ToString(exclude = {"roleSet"})
 @EntityListeners(value = { AuditingEntityListener.class })
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Resources implements Serializable {
 
@@ -58,4 +53,14 @@ public class Resources implements Serializable {
         @JoinColumn(name = "resource_id") }, inverseJoinColumns = { @JoinColumn(name = "role_id") })
     private Set<Role> roleSet = new HashSet<>();
 
+    @Builder
+    public Resources(Long id, String resourceName, String httpMethod, int orderNum, String resourceType,
+        Set<Role> roleSet) {
+        this.id = id;
+        this.resourceName = resourceName;
+        this.httpMethod = httpMethod;
+        this.orderNum = orderNum;
+        this.resourceType = resourceType;
+        this.roleSet = roleSet;
+    }
 }

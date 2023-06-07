@@ -16,13 +16,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Data
+@Getter
 @ToString
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
@@ -31,7 +31,6 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-
 
     @Column
     private String username;
