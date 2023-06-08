@@ -29,7 +29,7 @@ public class ResourcesController {
 
     private final RoleService roleService;
 
-    @GetMapping(value = "/admin/resources")
+    @GetMapping(value="/admin/resources")
     public String getResources(Model model) throws Exception {
 
         List<Resources> resources = resourcesService.getResources();
@@ -38,46 +38,37 @@ public class ResourcesController {
         return "admin/resource/list";
     }
 
-    @PostMapping(value = "/admin/resources")
+    @PostMapping(value="/admin/resources")
     public String createResources(ResourcesDto resourcesDto) throws Exception {
 
         ModelMapper modelMapper = new ModelMapper();
-        Role role = roleRepository.findByRoleName(resourcesDto.roleName());
+        Role role = roleRepository.findByRoleName(resourcesDto.getRoleName());
         Set<Role> roles = new HashSet<>();
         roles.add(role);
         Resources resources = modelMapper.map(resourcesDto, Resources.class);
-        Resources createdResources =
-            Resources.builder(resources)
-                .roleSet(roles)
-                .build();
+        resources.setRoleSet(roles);
 
-        resourcesService.createResources(createdResources);
+        resourcesService.createResources(resources);
 
         return "redirect:/admin/resources";
     }
 
-    @GetMapping(value = "/admin/resources/register")
+    @GetMapping(value="/admin/resources/register")
     public String viewRoles(Model model) throws Exception {
 
         List<Role> roleList = roleService.getRoles();
         model.addAttribute("roleList", roleList);
 
+        ResourcesDto resources = new ResourcesDto();
         Set<Role> roleSet = new HashSet<>();
         roleSet.add(new Role());
-        // ResourcesDto resources = new ResourcesDto();
-        // resources.setRoleSet(roleSet);
-
-        ResourcesDto resources =
-            ResourcesDto.builder()
-                .roleSet(roleSet)
-                .build();
-
+        resources.setRoleSet(roleSet);
         model.addAttribute("resources", resources);
 
         return "admin/resource/detail";
     }
 
-    @GetMapping(value = "/admin/resources/{id}")
+    @GetMapping(value="/admin/resources/{id}")
     public String getResources(@PathVariable String id, Model model) throws Exception {
 
         List<Role> roleList = roleService.getRoles();
@@ -91,7 +82,7 @@ public class ResourcesController {
         return "admin/resource/detail";
     }
 
-    @GetMapping(value = "/admin/resources/delete/{id}")
+    @GetMapping(value="/admin/resources/delete/{id}")
     public String removeResources(@PathVariable String id, Model model) throws Exception {
 
         Resources resources = resourcesService.getResources(Long.valueOf(id));

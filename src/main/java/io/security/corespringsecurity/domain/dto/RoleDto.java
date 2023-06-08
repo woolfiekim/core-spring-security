@@ -1,10 +1,21 @@
 package io.security.corespringsecurity.domain.dto;
 
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Builder
-public record RoleDto(String id,
-                       String roleName,
-                       String roleDesc){
+@Data
+@NoArgsConstructor
+public class RoleDto{
 
+    private String id;
+    private String roleName;
+    private String roleDesc;
+
+    @Builder
+    public RoleDto(String id, String roleName, String roleDesc) {
+        this.id = id;
+        this.roleName = roleName;
+        this.roleDesc = roleDesc;
+    }
 }

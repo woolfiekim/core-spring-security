@@ -69,5 +69,7 @@ public class Resources implements Serializable {
             .resourceName(prev.getResourceName());
     }
 
-    // public void setRoleSet(Set<Rol>)
+    public void setRoleSet(Set<Role> roleSet) {
+        this.roleSet = roleSet;
+    }
 }

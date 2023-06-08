@@ -60,4 +60,7 @@ public class Account implements Serializable {
         this.userRoles = userRoles;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
