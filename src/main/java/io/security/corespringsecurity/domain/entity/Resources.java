@@ -26,7 +26,7 @@ import lombok.ToString;
 @Table(name = "RESOURCES")
 @Getter
 @ToString(exclude = {"roleSet"})
-@EntityListeners(value = { AuditingEntityListener.class })
+@EntityListeners(value = {AuditingEntityListener.class})
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Resources implements Serializable {
@@ -50,7 +50,7 @@ public class Resources implements Serializable {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "role_resources", joinColumns = {
-        @JoinColumn(name = "resource_id") }, inverseJoinColumns = { @JoinColumn(name = "role_id") })
+        @JoinColumn(name = "resource_id")}, inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Set<Role> roleSet = new HashSet<>();
 
     @Builder
@@ -63,4 +63,11 @@ public class Resources implements Serializable {
         this.resourceType = resourceType;
         this.roleSet = roleSet;
     }
+
+    public static Resources.ResourcesBuilder builder(Resources prev) {
+        return new ResourcesBuilder()
+            .resourceName(prev.getResourceName());
+    }
+
+    // public void setRoleSet(Set<Rol>)
 }
