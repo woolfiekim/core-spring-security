@@ -2,6 +2,7 @@ package io.security.corespringsecurity.security.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,13 +29,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if(account == null){
             //인증 예외
-            throw new UsernameNotFoundException("UsernameNotFoundException");
+            if (userRepository.countByUsername(username) == 0) {
+                throw new UsernameNotFoundException("No user found with username: " + username);
+            }
         }
 
         //권한 추가
-        List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(account.getRole()));
+        List<GrantedAuthority> collect = account.getUserRoles()
+            .stream()
+            .map(userRole -> userRole.getRoleName())
+            .collect(Collectors.toSet())
+            .stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
-        return new AccountContext(account, roles);
+        //List<GrantedAuthority> collect = userRoles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return new AccountContext(account, collect);
     }
 }
