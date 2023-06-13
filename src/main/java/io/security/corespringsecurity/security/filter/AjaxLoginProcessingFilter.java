@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -14,42 +16,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.security.corespringsecurity.domain.dto.AccountDto;
 import io.security.corespringsecurity.security.token.AjaxAuthenticationToken;
+import io.security.corespringsecurity.util.WebUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
+    private static final String XML_HTTP_REQUEST = "XMLHttpRequest";
+    private static final String X_REQUESTED_WITH = "X-Requested-With";
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public AjaxLoginProcessingFilter(){
-        super(new AntPathRequestMatcher("/api/login"));
+        super(new AntPathRequestMatcher("/ajaxLogin", "POST"));
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
         AuthenticationException,IOException,ServletException {
 
-        if(!isAjax(request)){
-            throw new IllegalStateException("Authentication is not supported");
+        if (!HttpMethod.POST.name().equals(request.getMethod()) || !WebUtil.isAjax(request)) {
+            throw new IllegalArgumentException("Authentication method not supported");
         }
 
         AccountDto accountDto = objectMapper.readValue(request.getReader(), AccountDto.class);
-        if(StringUtils.isEmpty(accountDto.username()) || StringUtils.isEmpty(accountDto.password())){
-            throw new IllegalArgumentException("Username or Password is empty");
+
+        if (StringUtils.isEmpty(accountDto.getUsername()) || StringUtils.isEmpty(accountDto.getPassword())) {
+            throw new AuthenticationServiceException("Username or Password not provided");
         }
-        AjaxAuthenticationToken ajaxAuthenticationToken = new AjaxAuthenticationToken(accountDto.username(), accountDto.password());
+        AjaxAuthenticationToken token = new AjaxAuthenticationToken(accountDto.getUsername(),accountDto.getPassword());
 
-        AccountDto.builder()
-            .build();
-
-        return getAuthenticationManager().authenticate(ajaxAuthenticationToken);
+        return this.getAuthenticationManager().authenticate(token);
     }
 
-    private boolean isAjax(HttpServletRequest request) {
-        if("XMLHttpRequest".equals(request.getHeader("X-Request-with"))){
-            return true;
-        }
-        return false;
-    }
 }

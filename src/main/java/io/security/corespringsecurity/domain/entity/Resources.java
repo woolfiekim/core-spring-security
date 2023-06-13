@@ -64,10 +64,10 @@ public class Resources implements Serializable {
         this.roleSet = roleSet;
     }
 
-    public static Resources.ResourcesBuilder builder(Resources prev) {
-        return new ResourcesBuilder()
-            .resourceName(prev.getResourceName());
-    }
+    // public static Resources.ResourcesBuilder builder(Resources prev) {
+    //     return new ResourcesBuilder()
+    //         .resourceName(prev.getResourceName());
+    // }
 
     public void setRoleSet(Set<Role> roleSet) {
         this.roleSet = roleSet;
